@@ -1,5 +1,10 @@
 import * as PIXI from "pixi.js";
 
+let initialized = false;
+let pixiContainer: PIXI.Container | null = null;
+
+const getPixiContainer = () => pixiContainer;
+
 const createPixiContainer = () => {
   const mainContainer = new PIXI.Container();
   const subContainer = new PIXI.Container();
@@ -34,12 +39,17 @@ const createPixiContainer = () => {
   return mainContainer;
 };
 
-const initPixiApplication = async (view: HTMLCanvasElement) => {
-  const app = new PIXI.Application({ view, width: 640, height: 360 });
-  console.log(app.view);
-  const pixiContainer = createPixiContainer();
+const initPixiApplication = (view: HTMLCanvasElement) => {
+  if (initialized) {
+    console.log("Application already initialized")
+    return
+  };
 
+  const app = new PIXI.Application({ view, width: 640, height: 360 });
+  pixiContainer = createPixiContainer();
   app.stage.addChild(pixiContainer);
+
+  initialized = true;
 };
 
-export { initPixiApplication };
+export { initPixiApplication, getPixiContainer };
