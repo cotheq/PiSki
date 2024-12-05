@@ -1,4 +1,4 @@
-import { getPixiContainer, initPixiApplication } from "./pixiContainer";
+import { getPixiContainer, initPixiApplication } from "./pixiApplication";
 
 import "./style.css";
 
