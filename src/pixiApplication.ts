@@ -1,5 +1,7 @@
 import * as PIXI from "pixi.js";
 
+type InteractiveGraphics = PIXI.Graphics & PIXI.utils.EventEmitter;
+
 let initialized = false;
 let pixiContainer: PIXI.Container | null = null;
 
@@ -8,13 +10,14 @@ const getPixiContainer = () => pixiContainer;
 const createPixiContainer = () => {
   const mainContainer = new PIXI.Container();
   const subContainer = new PIXI.Container();
-  const g1 = new PIXI.Graphics();
-  const g2 = new PIXI.Graphics();
-  const g3 = new PIXI.Graphics();
-  const g4 = new PIXI.Graphics();
+  const g1: InteractiveGraphics = new PIXI.Graphics();
+  const g2: InteractiveGraphics = new PIXI.Graphics();
+  const g3: InteractiveGraphics = new PIXI.Graphics();
+  const g4: InteractiveGraphics = new PIXI.Graphics();
 
   g1.eventMode = "static";
   g2.eventMode = "static";
+
 
   g1.beginFill("#ff0000").drawEllipse(0, 0, 200, 100).endFill();
   g1.position.set(200, 100);

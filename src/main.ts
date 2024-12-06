@@ -1,5 +1,5 @@
 import { getPixiContainer, initPixiApplication } from "./pixiApplication";
-import { isCanvasKitInitialized, initSkiaCanvas } from "./skiaTest"
+import { isCanvasKitInitialized, initSkiaCanvas } from "./skiaCanvas"
 import "./style.css";
 
 const mainElement = document.querySelector<HTMLDivElement>("#app")!;
@@ -16,7 +16,7 @@ const observer = new MutationObserver(() => {
       `#${pixiCanvasId}`
     ) as HTMLCanvasElement;
     if (!pixiViewElement) {
-      throw new DOMException("No view element for PIXI");
+      throw new Error("No view element for PIXI");
     }
     initPixiApplication(pixiViewElement, canvasWidth, canvasHeight);
   }
