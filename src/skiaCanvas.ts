@@ -10,81 +10,91 @@ const isCanvasKitInitialized = () => initialized;
 const initSkiaCanvas = (skCanvasId: string) => {
   initialized = true;
   InitCanvasKit({
-    locateFile: () => '/node_modules/canvaskit-wasm/bin/canvaskit.wasm',
-  }).then((canvasKit: CanvasKit) => {
-    const surface = canvasKit.MakeWebGLCanvasSurface(skCanvasId);
+    locateFile: () => "/node_modules/canvaskit-wasm/bin/canvaskit.wasm",
+  })
+    .then((canvasKit: CanvasKit) => {
+      const surface = canvasKit.MakeWebGLCanvasSurface(skCanvasId);
       if (surface == null) {
         throw new Error("CanvasKit Canvas surface not created");
       }
-      console.log("Surface created")
-    const pixiContainer = getPixiContainer()
-    if (pixiContainer) {
-      drawOnCanvasKit(canvasKit, surface, pixiContainer);
-    } else {
-      console.log("No pixi container")
-    }
-  }).catch(() => { initialized = false; });
-  
-}
-
-
+      console.log("Surface created");
+      const pixiContainer = getPixiContainer();
+      if (pixiContainer) {
+        drawOnCanvasKit(canvasKit, surface, pixiContainer);
+      } else {
+        console.log("No pixi container");
+      }
+    })
+    .catch(() => {
+      initialized = false;
+    });
+};
 
 const drawOnCanvasKit = (
   canvasKit: CanvasKit,
   surface: Surface,
   pixiContainer: PIXI.Container
 ) => {
+  const drawLoop = (canvas: Canvas) => {
+    canvas.clear(canvasKit.BLACK);
 
-  const drawLoop = ((canvas: Canvas) => {
-    canvas.clear(canvasKit.BLACK)
-    
     /////// вынести в отдельную функцию
     const graphicsToDraw: PIXI.Container[] = [];
     const traverseChildren = (container: PIXI.Container) => {
-      for (let i = 0; i < (container.children).length; i++) {
+      for (let i = 0; i < container.children.length; i++) {
         let child = container.children[i];
         if (child instanceof PIXI.Container) {
-
           if (child instanceof PIXI.Graphics || child instanceof PIXI.Sprite) {
-            graphicsToDraw.push(child)
+            graphicsToDraw.push(child);
           }
-          
+
           traverseChildren(child);
         } else {
-          console.log(child)
+          console.log(child);
           return;
         }
       }
-    }
+    };
     ///////
 
     traverseChildren(pixiContainer);
     console.log(graphicsToDraw);
-    
+
     ///////вынести в отдельную функцию работу с линейным массивом
     for (let i = 0; i < graphicsToDraw.length; i++) {
       let graphics = graphicsToDraw[i];
       const worldTransform: PIXI.Matrix = graphics.worldTransform;
       if (graphics instanceof PIXI.Graphics) {
         for (let j = 0; j < graphics.geometry.graphicsData.length; j++) {
-          const graphicsData: PIXI.GraphicsData = graphics.geometry.graphicsData[j];
-          const {points, fillStyle, lineStyle} = graphicsData;
+          const graphicsData: PIXI.GraphicsData =
+            graphics.geometry.graphicsData[j];
+          const { points, fillStyle, lineStyle } = graphicsData;
           const shapeType = graphicsData.shape.type;
-          const matrix = graphicsData.matrix ? worldTransform.append(graphicsData.matrix) : worldTransform;
-          const skiaMatrix = [...matrix.toArray(false), 0, 0, 1]
+          const matrix = graphicsData.matrix
+            ? worldTransform.append(graphicsData.matrix)
+            : worldTransform;
+          const skiaMatrix = [...matrix.toArray(false), 0, 0, 1];
           let closeStroke = false;
-          if (graphicsData.shape instanceof PIXI.Polygon || true) {
-            closeStroke = graphicsData.shape.closeStroke
+          if (graphicsData.shape instanceof PIXI.Polygon) {
+            closeStroke = graphicsData.shape.closeStroke;
           }
 
-          console.log(matrix)
+          console.log(matrix);
 
-          switch(shapeType) {
+          switch (shapeType) {
             //case PIXI.SHAPES.RECT: continue; //Draw rect
             //case PIXI.SHAPES.ELIP: continue; //Draw rect
-            default: drawPolygon(canvasKit, canvas, points, closeStroke, skiaMatrix, fillStyle, lineStyle);
+            default:
+              drawPolygon(
+                canvasKit,
+                canvas,
+                points,
+                closeStroke,
+                skiaMatrix,
+                fillStyle,
+                lineStyle
+              );
           }
-          
         }
       }
       if (graphics instanceof PIXI.Sprite) {
@@ -92,29 +102,12 @@ const drawOnCanvasKit = (
       }
     }
     ///////////
-    
-    
-    
-
-
-
-
-
-
 
     //включить потом
     //surface.requestAnimationFrame(drawLoop)
-  });
+  };
 
-  surface.requestAnimationFrame(drawLoop)
-
+  surface.requestAnimationFrame(drawLoop);
 };
 
-
-
-
-
-
-
-export {initSkiaCanvas, isCanvasKitInitialized}
-
+export { initSkiaCanvas, isCanvasKitInitialized };
