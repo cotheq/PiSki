@@ -29,7 +29,6 @@ const initSkiaCanvas = (skCanvasId: string) => {
 
 
 
-
 const drawOnCanvasKit = (
   canvasKit: CanvasKit,
   surface: Surface,
@@ -64,31 +63,31 @@ const drawOnCanvasKit = (
     
     ///////вынести в отдельную функцию работу с линейным массивом
     for (let i = 0; i < graphicsToDraw.length; i++) {
-      let g = graphicsToDraw[i];
-      const worldTransform: PIXI.Matrix = g.worldTransform;
-      if (g instanceof PIXI.Graphics) {
-        for (let j = 0; j < g.geometry.graphicsData.length; j++) {
-          const gd: PIXI.GraphicsData = g.geometry.graphicsData[j];
-          const {points, fillStyle, lineStyle} = gd;
-          const shapeType = gd.shape.type;
-          const matrix = gd.matrix ? worldTransform.append(gd.matrix) : worldTransform;
+      let graphics = graphicsToDraw[i];
+      const worldTransform: PIXI.Matrix = graphics.worldTransform;
+      if (graphics instanceof PIXI.Graphics) {
+        for (let j = 0; j < graphics.geometry.graphicsData.length; j++) {
+          const graphicsData: PIXI.GraphicsData = graphics.geometry.graphicsData[j];
+          const {points, fillStyle, lineStyle} = graphicsData;
+          const shapeType = graphicsData.shape.type;
+          const matrix = graphicsData.matrix ? worldTransform.append(graphicsData.matrix) : worldTransform;
           const skiaMatrix = [...matrix.toArray(false), 0, 0, 1]
           let closeStroke = false;
-          if (gd.shape instanceof PIXI.Polygon) {
-            closeStroke = gd.shape.closeStroke
+          if (graphicsData.shape instanceof PIXI.Polygon || true) {
+            closeStroke = graphicsData.shape.closeStroke
           }
 
           console.log(matrix)
 
           switch(shapeType) {
-            case PIXI.SHAPES.RECT: continue; //Draw rect
-            case PIXI.SHAPES.ELIP: continue; //Draw rect
-            default: drawPolygon(canvasKit, canvas, points, closeStroke, skiaMatrix);
+            //case PIXI.SHAPES.RECT: continue; //Draw rect
+            //case PIXI.SHAPES.ELIP: continue; //Draw rect
+            default: drawPolygon(canvasKit, canvas, points, closeStroke, skiaMatrix, fillStyle, lineStyle);
           }
           
         }
       }
-      if (g instanceof PIXI.Sprite) {
+      if (graphics instanceof PIXI.Sprite) {
         //TODO ну это как-нибудь потом уже, когда разберёмся с graphics
       }
     }
