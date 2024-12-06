@@ -39,13 +39,13 @@ const createPixiContainer = () => {
   return mainContainer;
 };
 
-const initPixiApplication = (view: HTMLCanvasElement) => {
+const initPixiApplication = (view: HTMLCanvasElement, width: number, height: number) => {
   if (initialized) {
-    console.log("Application already initialized")
+    console.log("Pixi application already initialized")
     return
   };
-
-  const app = new PIXI.Application({ view, width: 640, height: 360 });
+  
+  const app = new PIXI.Application({ view, width, height });
   pixiContainer = createPixiContainer();
   app.stage.addChild(pixiContainer);
 
