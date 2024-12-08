@@ -10,10 +10,10 @@ const isCanvasKitInitialized = () => initialized;
 const initSkiaCanvas = (skCanvasId: string) => {
   initialized = true;
   InitCanvasKit({
-    locateFile: () => "/node_modules/canvaskit-wasm/bin/canvaskit.wasm",
+    locateFile: () => "./canvaskit-with-pdf.wasm",
   })
     .then((canvasKit: CanvasKit) => {
-      const surface = canvasKit.MakeWebGLCanvasSurface(skCanvasId);
+      const surface = canvasKit.MakeSWCanvasSurface(skCanvasId);
       if (surface == null) {
         throw new Error("CanvasKit Canvas surface not created");
       }
@@ -25,8 +25,10 @@ const initSkiaCanvas = (skCanvasId: string) => {
         console.log("No pixi container");
       }
     })
-    .catch(() => {
+    .catch((e) => {
+      console.log("Fucked up")
       initialized = false;
+      throw e;
     });
 };
 

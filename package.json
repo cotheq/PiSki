@@ -6,9 +6,11 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "npx patch-package && node remove-vite.js"
   },
   "devDependencies": {
+    "patch-package": "^8.0.0",
     "prettier": "3.4.2",
     "typescript": "~5.6.2",
     "vite": "^6.0.1",
