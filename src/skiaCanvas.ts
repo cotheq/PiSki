@@ -1,5 +1,6 @@
 import InitCanvasKit, { Canvas, CanvasKit, Surface } from "canvaskit-wasm";
 import * as PIXI from "pixi.js";
+import { downloadUint8ArrayAsFile } from "./helpers";
 import { getPixiContainer } from "./pixiApplication";
 import { drawPolygon, drawSomething } from "./skiaDrawFunctions";
 
@@ -110,6 +111,12 @@ const drawOnCanvasKit = (
   };
 
   surface.requestAnimationFrame(drawLoop);
+
+  window.ck = canvasKit;
+  window.cn = surface.getCanvas();
+
+  downloadUint8ArrayAsFile(canvasKit.canvasToPDF(640, 360, drawLoop), 'sample.pdf')
+  
 };
 
 export { initSkiaCanvas, isCanvasKitInitialized };
