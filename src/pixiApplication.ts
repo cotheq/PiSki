@@ -1,12 +1,11 @@
 import * as PIXI from "pixi.js-legacy";
 
 let initialized = false;
-let pixiContainer: PIXI.Container | null = null;
+let currentPixiContainer: PIXI.Container | null = null;
 
-const getPixiContainer = () => pixiContainer;
+const getPixiContainer = () => currentPixiContainer;
 
 const createPixiContainer = () => {
-
   //This is an example
   const mainContainer = new PIXI.Container();
   const subContainer = new PIXI.Container();
@@ -67,16 +66,25 @@ const createPixiContainer = () => {
 const initPixiApplication = (
   view: HTMLCanvasElement,
   width: number,
-  height: number
+  height: number,
+  backgroundColor?: PIXI.ColorSource
 ) => {
   if (initialized) {
     console.log("Pixi application already initialized");
     return;
   }
 
-  const app = new PIXI.Application({ view, width, height, forceCanvas: true });
-  pixiContainer = createPixiContainer();
-  app.stage.addChild(pixiContainer);
+  const app = new PIXI.Application({
+    view,
+    width,
+    height,
+    forceCanvas: true,
+    backgroundColor,
+  });
+  currentPixiContainer = createPixiContainer();
+  
+  //TODO: Добавить возможность менять PIXI контейнеры
+  app.stage.addChild(currentPixiContainer);
 
   initialized = true;
 };

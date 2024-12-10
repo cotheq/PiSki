@@ -1,14 +1,14 @@
 import { getPixiContainer, initPixiApplication } from "./pixiApplication";
-import { isCanvasKitInitialized, initSkiaCanvas } from "./skiaCanvas"
+import { initSkiaCanvas, drawCallback } from "./skiaCanvas";
 import "./style.css";
+import canvasSettings from "./settings";
+import { canvasToPDF } from "./helpers";
 
 const mainElement = document.querySelector<HTMLDivElement>("#app")!;
 const pixiCanvasId = "pixiCanvas";
 const skiaCanvasId = "skiaCanvas";
 
-const canvasWidth = 640;
-const canvasHeight = 360;
-
+const { canvasWidth, canvasHeight, backgroundColor } = canvasSettings;
 
 const observer = new MutationObserver(() => {
   if (getPixiContainer() == null) {
@@ -18,12 +18,20 @@ const observer = new MutationObserver(() => {
     if (!pixiViewElement) {
       throw new Error("No view element for PIXI");
     }
-    initPixiApplication(pixiViewElement, canvasWidth, canvasHeight);
+    initPixiApplication(
+      pixiViewElement,
+      canvasWidth,
+      canvasHeight,
+      backgroundColor
+    );
   }
 
-  if (!isCanvasKitInitialized()) {
-    initSkiaCanvas(skiaCanvasId);
-  }
+  initSkiaCanvas(skiaCanvasId);
+
+  document.querySelector<HTMLElement>("#exportToPDF")!.addEventListener("click", () => {
+    canvasToPDF(canvasWidth, canvasHeight, drawCallback, "canvasfuck.pdf")
+  })
+
 
 });
 
@@ -34,8 +42,9 @@ observer.observe(mainElement, {
 });
 
 mainElement.innerHTML = `
-<div id="test">
-  <canvas id="${pixiCanvasId}" width="${canvasWidth}" height="${canvasHeight}"></canvas>
-  <canvas id="${skiaCanvasId}" width="${canvasWidth}" height="${canvasHeight}"></canvas>
+<div class="canvas-container" style="width: ${canvasWidth}px;">
+    <canvas id="${pixiCanvasId}" width="${canvasWidth}" height="${canvasHeight}"></canvas>
+    <canvas id="${skiaCanvasId}" width="${canvasWidth}" height="${canvasHeight}"></canvas>
+  <button id="exportToPDF">Export to PDF</button>
 </div>
 `;

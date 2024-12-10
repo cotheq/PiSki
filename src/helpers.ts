@@ -1,9 +1,12 @@
+import { getCanvasKitInstance } from "./CanvasKitInstance";
+import { DrawCallback } from "./types";
+
 const hexToRgba = (hex: number, a: number = 1) => {
   const r = (hex >> 16) & 0xff; // Извлекаем красный канал
   const g = (hex >> 8) & 0xff; // Извлекаем зелёный канал
   const b = hex & 0xff; // Извлекаем синий канал
   return { r, g, b, a }; // Возвращаем массив RGBA
-}
+};
 
 /**
  * Преобразует Uint8Array в файл и инициирует скачивание.
@@ -11,7 +14,7 @@ const hexToRgba = (hex: number, a: number = 1) => {
  * @param fileName - Имя файла для скачивания.
  * @param mimeType - MIME-тип файла (по умолчанию application/octet-stream).
  */
- const downloadUint8ArrayAsFile = (
+const downloadUint8ArrayAsFile = (
   data: Uint8Array,
   fileName: string,
   mimeType: string = "application/octet-stream"
@@ -31,7 +34,20 @@ const hexToRgba = (hex: number, a: number = 1) => {
 
   // Очищаем временный URL
   URL.revokeObjectURL(link.href);
-}
+};
 
+const canvasToPDF = (
+  canvasWidth: number,
+  canvasHeight: number,
+  drawCallback: DrawCallback,
+  fileName = "canvas.pdf"
+) => {
+  const CanvasKit = getCanvasKitInstance();
+  downloadUint8ArrayAsFile(
+    //@ts-ignore
+    CanvasKit.canvasToPDF(canvasWidth, canvasHeight, drawCallback),
+    fileName
+  );
+};
 
-export {hexToRgba, downloadUint8ArrayAsFile}
+export { hexToRgba, canvasToPDF };
