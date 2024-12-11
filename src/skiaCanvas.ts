@@ -1,7 +1,7 @@
 import InitCanvasKit, { Canvas, CanvasKit, Surface } from "canvaskit-wasm";
 import * as PIXI from "pixi.js-legacy";
-import { canvasToPDF, hexToRgba } from "./helpers";
-import { getPixiContainer } from "./pixiApplication";
+import { hexToRgba } from "./helpers";
+import { getCurrentPixiContainer } from "./pixiApplication";
 import {
   drawCircle,
   drawEllipse,
@@ -13,30 +13,47 @@ import { setCanvasKitInstance } from "./CanvasKitInstance";
 import { DrawCallback, IDrawFunctionOptions } from "./types";
 
 let ck: CanvasKit;
+let surface: Surface | null;
 let drawCallback: DrawCallback;
 
 const initSkiaCanvas = (skCanvasId: string) => {
-  InitCanvasKit({
-    locateFile: () => "./canvaskit-with-pdf.wasm",
-  })
-    .then((newInstance: CanvasKit) => {
-      ck = setCanvasKitInstance(newInstance);
-      const surface = ck.MakeSWCanvasSurface(skCanvasId);
-      if (surface == null) {
-        throw new Error("CanvasKit Canvas surface not created");
-      }
-
-      //TODO: сделать возможность менять контейнеры
-      const pixiContainer = getPixiContainer();
-      if (pixiContainer) {
-        setDrawCallback(surface, pixiContainer);
-      } else {
-        throw new Error("No pixi container");
-      }
+  if (ck == null) {
+    InitCanvasKit({
+      locateFile: () => "./canvaskit-with-pdf.wasm",
     })
-    .catch((e) => {
-      throw e;
-    });
+      .then((newInstance: CanvasKit) => {
+        ck = setCanvasKitInstance(newInstance);
+        initSurface(skCanvasId);
+        updateDrawCallback();
+      })
+      .catch((e) => {
+        throw e;
+      });
+  } else {
+    initSurface(skCanvasId);
+    updateDrawCallback();
+  }
+};
+
+const initSurface = (skCanvasId: string) => {
+  if (surface == null) {
+    surface = ck.MakeSWCanvasSurface(skCanvasId);
+    if (surface == null) {
+      throw new Error("CanvasKit Canvas surface not created");
+    }
+  }
+};
+
+const updateDrawCallback = () => {
+  if (surface == null) {
+    throw new Error("No canvas surface");
+  }
+  const pixiContainer = getCurrentPixiContainer();
+  if (pixiContainer) {
+    setDrawCallback(surface, pixiContainer);
+  } else {
+    throw new Error("No pixi container");
+  }
 };
 
 const getObjectsToDrawArray = (pixiContainer: PIXI.Container) => {
@@ -59,6 +76,8 @@ const getObjectsToDrawArray = (pixiContainer: PIXI.Container) => {
 };
 
 const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
+  surface.flush();
+
   drawCallback = (canvas: Canvas) => {
     const { r, g, b } = hexToRgba(canvasSettings.backgroundColor);
     canvas.clear(ck.Color(r, g, b));
@@ -118,4 +137,4 @@ const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
   surface.requestAnimationFrame(drawCallback);
 };
 
-export { initSkiaCanvas, drawCallback };
+export { initSkiaCanvas, drawCallback, updateDrawCallback };

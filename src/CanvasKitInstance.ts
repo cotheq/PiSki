@@ -9,12 +9,10 @@ const getCanvasKitInstance = () => {
 };
 
 const setCanvasKitInstance = (newInstance: CanvasKit) => {
-  if (ck == null && newInstance != null) {
+  if (ck == null) {
     ck = newInstance;
-    return ck;
-  } else {
-    throw new Error("CanvasKit already initialized");
   }
+  return ck;
 };
 
 export { getCanvasKitInstance, setCanvasKitInstance };
