@@ -68,10 +68,10 @@ const createPaint = (
       paint.setStrokeMiter(lineStyle.miterLimit);
     }
     if (lineStyle.cap !== undefined) {
-      paint.setStrokeCap(convertLineCap(lineStyle.cap, ck));
+      paint.setStrokeCap(convertLineCap(lineStyle.cap));
     }
     if (lineStyle.join !== undefined) {
-      paint.setStrokeJoin(convertLineJoin(lineStyle.join, ck));
+      paint.setStrokeJoin(convertLineJoin(lineStyle.join));
     }
   }
 
@@ -130,8 +130,6 @@ const drawCircle = (
   options: IDrawFunctionOptions,
   shape: PIXI.Circle
 ) => {
-  const ck = getCanvasKitInstance()
-
   const { x, y, radius } = shape;
   const { canvas, matrix, fillStyle, lineStyle } = options;
   const paint = createPaint(fillStyle, lineStyle);
