@@ -7,6 +7,8 @@ import {
   drawEllipse,
   drawPolygon,
   drawRect,
+  drawImage,
+  drawRoundedRect,
 } from "./skiaDrawFunctions";
 import canvasSettings from "./settings";
 import { setCanvasKitInstance } from "./CanvasKitInstance";
@@ -110,6 +112,10 @@ const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
               drawRect(drawFunctionOptions, shape);
               break;
             }
+            case PIXI.SHAPES.RREC: {
+              drawRoundedRect(drawFunctionOptions, shape);
+              break;
+            }
             case PIXI.SHAPES.ELIP: {
               drawEllipse(drawFunctionOptions, shape);
               break;
@@ -128,6 +134,12 @@ const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
         }
       }
       if (obj instanceof PIXI.Sprite) {
+        const matrix = worldTransform.toArray(false);
+        const drawFunctionOptions: IDrawFunctionOptions = {
+          canvas,
+          matrix,
+        };
+        drawImage(drawFunctionOptions, obj);
         //TODO ну это как-нибудь потом уже, когда разберёмся с graphics
       }
     }

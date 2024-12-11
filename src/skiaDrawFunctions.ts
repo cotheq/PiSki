@@ -2,11 +2,10 @@ import { hexToRgba } from "./helpers";
 import * as PIXI from "pixi.js";
 import { getCanvasKitInstance } from "./CanvasKitInstance";
 import { IDrawFunctionOptions } from "./types";
+import { Paint } from "canvaskit-wasm";
 
-// Конвертация lineCap из Pixi в Skia
 const convertLineCap = (pixiCap: PIXI.LINE_CAP) => {
-  const ck = getCanvasKitInstance()
-
+  const ck = getCanvasKitInstance();
   switch (pixiCap) {
     case PIXI.LINE_CAP.BUTT:
       return ck.StrokeCap.Butt;
@@ -19,10 +18,8 @@ const convertLineCap = (pixiCap: PIXI.LINE_CAP) => {
   }
 };
 
-// Конвертация lineJoin из Pixi в Skia
 function convertLineJoin(pixiJoin: PIXI.LINE_JOIN) {
-  const ck = getCanvasKitInstance()
-
+  const ck = getCanvasKitInstance();
   switch (pixiJoin) {
     case PIXI.LINE_JOIN.BEVEL:
       return ck.StrokeJoin.Bevel;
@@ -35,125 +32,157 @@ function convertLineJoin(pixiJoin: PIXI.LINE_JOIN) {
   }
 }
 
-const createPaint = (
+const drawWithFillAndStroke = (
   fillStyle: PIXI.FillStyle,
   lineStyle: PIXI.LineStyle,
+  callback: (paint: Paint) => void
 ) => {
-  const ck = getCanvasKitInstance()
+  const fillStylePaint = createPaint(fillStyle);
+  const lineStylePaint = createPaint(lineStyle);
+  callback(fillStylePaint);
+  callback(lineStylePaint);
+  fillStylePaint.delete();
+  lineStylePaint.delete();
+};
+
+const createPaint = (style: PIXI.FillStyle | PIXI.LineStyle) => {
+  const ck = getCanvasKitInstance();
 
   const paint = new ck.Paint();
+  paint.setAntiAlias(true);
 
-  // Переносим свойства заливки (fillStyle)
-  if (fillStyle.visible) {
-    const fillColor = fillStyle.color;
-    const fillAlpha = fillStyle.alpha;
+  if (style instanceof PIXI.FillStyle) {
+    const fillColor = style.color;
+    const fillAlpha = style.visible ? style.alpha : 0;
     const { r, g, b, a } = hexToRgba(fillColor, fillAlpha);
-
     paint.setStyle(ck.PaintStyle.Fill);
     paint.setColor(ck.Color(r, g, b, a));
+    paint.setStrokeWidth(0);
   }
 
-  // Переносим свойства обводки (lineStyle)
-  if (lineStyle.width > 0) {
-    const lineColor = lineStyle.color; // Цвет в формате HEX
-    const lineAlpha = lineStyle.alpha; // Прозрачность
+  if (style instanceof PIXI.LineStyle) {
+    const lineColor = style.color;
+    const lineAlpha = style.width > 0 ? style.alpha : 0;
     const { r, g, b, a } = hexToRgba(lineColor, lineAlpha);
-
     paint.setStyle(ck.PaintStyle.Stroke);
-    paint.setStrokeWidth(lineStyle.width);
+    paint.setStrokeWidth(style.width);
     paint.setColor(ck.Color(r, g, b, a));
-    paint.setAntiAlias(true);
 
-    if (lineStyle.miterLimit !== undefined) {
-      paint.setStrokeMiter(lineStyle.miterLimit);
+    if (style.miterLimit !== undefined) {
+      paint.setStrokeMiter(style.miterLimit);
     }
-    if (lineStyle.cap !== undefined) {
-      paint.setStrokeCap(convertLineCap(lineStyle.cap));
+    if (style.cap !== undefined) {
+      paint.setStrokeCap(convertLineCap(style.cap));
     }
-    if (lineStyle.join !== undefined) {
-      paint.setStrokeJoin(convertLineJoin(lineStyle.join));
+    if (style.join !== undefined) {
+      paint.setStrokeJoin(convertLineJoin(style.join));
     }
   }
 
   return paint;
 };
 
-// const drawSomething = (ck: CanvasKit, canvas: Canvas) => {
-//   const paint = new ck.Paint();
-//   paint.setColor(ck.Color4f(0.9, 0, 0, 1.0));
-//   paint.setStyle(ck.PaintStyle.Stroke);
-
-//   const rr = ck.RRectXY(ck.LTRBRect(10, 60, 210, 260), 25, 15);
-
-//   canvas.clear(ck.BLACK);
-//   canvas.drawRRect(rr, paint);
-// };
-
-const drawRect = (
-  options: IDrawFunctionOptions,
-  shape: PIXI.Rectangle
-) => {
-  const ck = getCanvasKitInstance()
+const drawRect = (options: IDrawFunctionOptions, shape: PIXI.Rectangle) => {
+  const ck = getCanvasKitInstance();
 
   const { canvas, matrix, fillStyle, lineStyle } = options;
   const { x, y, width, height } = shape;
-  const paint = createPaint(fillStyle, lineStyle);
   const rect = ck.XYWHRect(x, y, width, height);
   canvas.save();
   canvas.concat(matrix);
-  canvas.drawRect(rect, paint);
+  drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
+    canvas.drawRect(rect, paint);
+  });
   canvas.restore();
 };
 
-const drawPolygon = (
+const drawRoundedRect = (
   options: IDrawFunctionOptions,
-  shape: PIXI.Polygon
+  shape: PIXI.RoundedRectangle
 ) => {
-  const ck = getCanvasKitInstance()
+  const ck = getCanvasKitInstance();
+
+  const { canvas, matrix, fillStyle, lineStyle } = options;
+  const { x, y, width, height, radius } = shape;
+  const roundedRect = ck.RRectXY(
+    ck.XYWHRect(x, y, width, height),
+    radius,
+    radius
+  );
+  canvas.save();
+  canvas.concat(matrix);
+  drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
+    canvas.drawRRect(roundedRect, paint);
+  });
+  canvas.restore();
+};
+
+const drawPolygon = (options: IDrawFunctionOptions, shape: PIXI.Polygon) => {
+  const ck = getCanvasKitInstance();
 
   const { canvas, matrix, fillStyle, lineStyle } = options;
   const { points, closeStroke } = shape;
   if (points.length === 0 || points.length % 2 === 1) {
     throw new Error("Wrong points array length in polygon");
   }
-  const paint = createPaint(fillStyle, lineStyle);
   const path = new ck.Path();
   canvas.save();
   canvas.concat(matrix);
   path.addPoly(points, closeStroke);
-  canvas.drawPath(path, paint);
+  drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
+    canvas.drawPath(path, paint);
+  });
   canvas.restore();
   path.delete();
 };
 
-const drawCircle = (
-  options: IDrawFunctionOptions,
-  shape: PIXI.Circle
-) => {
+const drawCircle = (options: IDrawFunctionOptions, shape: PIXI.Circle) => {
   const { x, y, radius } = shape;
   const { canvas, matrix, fillStyle, lineStyle } = options;
-  const paint = createPaint(fillStyle, lineStyle);
   canvas.save();
   canvas.concat(matrix);
-  canvas.drawCircle(x, y, radius, paint);
+  drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
+    canvas.drawCircle(x, y, radius, paint);
+  });
   canvas.restore();
 };
 
-const drawEllipse = (
-  options: IDrawFunctionOptions,
-  shape: PIXI.Ellipse
-) => {
-  const ck = getCanvasKitInstance()
+const drawEllipse = (options: IDrawFunctionOptions, shape: PIXI.Ellipse) => {
+  const ck = getCanvasKitInstance();
 
   const { canvas, matrix, fillStyle, lineStyle } = options;
   const { x, y, width, height } = shape;
-  const paint = createPaint(fillStyle, lineStyle);
-  const rect = ck.XYWHRect(x - width, y - height, width * 2, height * 2); //КОСТЫЛЬ
+  const rect = ck.XYWHRect(x - width, y - height, width * 2, height * 2); //КОСТЫЛЬ - так рисуются правильные координаты для овала / эллипса вместо x, y, width, height
   canvas.save();
   canvas.concat(matrix);
-  canvas.drawOval(rect, paint);
+  drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
+    canvas.drawOval(rect, paint);
+  });
   canvas.restore();
 };
 
+const drawImage = (options: IDrawFunctionOptions, sprite: PIXI.Sprite) => {
+  const { canvas, matrix } = options;
+  const pixiImageResource = sprite.texture.baseTexture.resource;
+  if (!(pixiImageResource instanceof PIXI.ImageResource)) {
+    throw new Error("Only image resources supported");
+  }
+  const source = pixiImageResource.source;
+  if (source instanceof HTMLImageElement) {
+    const ck = getCanvasKitInstance();
+    const image = ck.MakeImageFromCanvasImageSource(source);
+    canvas.save();
+    canvas.concat(matrix);
+    canvas.drawImage(image, 0, 0);
+    canvas.restore();
+  }
+};
 
-export { drawPolygon, drawRect, drawCircle, drawEllipse };
+export {
+  drawPolygon,
+  drawRect,
+  drawCircle,
+  drawEllipse,
+  drawImage,
+  drawRoundedRect,
+};
