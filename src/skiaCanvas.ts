@@ -86,7 +86,6 @@ const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
 
     const objectsToDraw = getObjectsToDrawArray(pixiContainer);
 
-    ///////вынести в отдельную функцию работу с линейным массивом
     for (let i = 0; i < objectsToDraw.length; i++) {
       let obj = objectsToDraw[i];
       const worldTransform: PIXI.Matrix = obj.worldTransform;
@@ -140,7 +139,6 @@ const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
           matrix,
         };
         drawImage(drawFunctionOptions, obj);
-        //TODO ну это как-нибудь потом уже, когда разберёмся с graphics
       }
     }
     surface.requestAnimationFrame(drawCallback);

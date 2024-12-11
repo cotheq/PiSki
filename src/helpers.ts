@@ -2,10 +2,10 @@ import { getCanvasKitInstance } from "./CanvasKitInstance";
 import { DrawCallback } from "./types";
 
 const hexToRgba = (hex: number, a: number = 1) => {
-  const r = (hex >> 16) & 0xff; // Извлекаем красный канал
-  const g = (hex >> 8) & 0xff; // Извлекаем зелёный канал
-  const b = hex & 0xff; // Извлекаем синий канал
-  return { r, g, b, a }; // Возвращаем массив RGBA
+  const r = (hex >> 16) & 0xff;
+  const g = (hex >> 8) & 0xff; 
+  const b = hex & 0xff;
+  return { r, g, b, a };
 };
 
 /**
@@ -42,10 +42,10 @@ const canvasToPDF = (
   drawCallback: DrawCallback,
   fileName = "canvas.pdf"
 ) => {
-  const CanvasKit = getCanvasKitInstance();
+  const ck = getCanvasKitInstance();
   downloadUint8ArrayAsFile(
     //@ts-ignore
-    CanvasKit.canvasToPDF(canvasWidth, canvasHeight, drawCallback),
+    ck.canvasToPDF(canvasWidth, canvasHeight, drawCallback),
     fileName
   );
 };

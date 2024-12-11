@@ -135,7 +135,6 @@ containers.push(
       }
       return coords;
     };
-    // Создаем звезду
     const starPoints = createStarPoints(320, 180, 15, 100, 50);
     const starShape = new PIXI.Polygon(starPoints);
 
