@@ -1,6 +1,6 @@
 import { Canvas } from "canvaskit-wasm";
 
-export type DrawCallback = (c: Canvas) => void;
+export type DrawCallback = (c: Canvas, savePaths?: boolean) => void;
 
 export interface IDrawFunctionOptions {
   canvas: Canvas;

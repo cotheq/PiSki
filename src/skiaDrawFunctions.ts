@@ -88,12 +88,14 @@ const drawRect = (options: IDrawFunctionOptions, shape: PIXI.Rectangle) => {
   const { canvas, matrix, fillStyle, lineStyle } = options;
   const { x, y, width, height } = shape;
   const rect = ck.XYWHRect(x, y, width, height);
-  canvas.save();
-  canvas.concat(matrix);
+  const path = new ck.Path();
+  path.addRect(rect);
+  path.transform(matrix);
   drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
-    canvas.drawRect(rect, paint);
+    canvas.drawPath(path, paint);
   });
-  canvas.restore();
+
+  return path;
 };
 
 const drawRoundedRect = (
@@ -109,12 +111,14 @@ const drawRoundedRect = (
     radius,
     radius
   );
-  canvas.save();
-  canvas.concat(matrix);
+
+  const path = new ck.Path();
+  path.addRRect(roundedRect);
+  path.transform(matrix);
   drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
-    canvas.drawRRect(roundedRect, paint);
+    canvas.drawPath(path, paint);
   });
-  canvas.restore();
+  return path;
 };
 
 const drawPolygon = (options: IDrawFunctionOptions, shape: PIXI.Polygon) => {
@@ -126,25 +130,26 @@ const drawPolygon = (options: IDrawFunctionOptions, shape: PIXI.Polygon) => {
     throw new Error("Wrong points array length in polygon");
   }
   const path = new ck.Path();
-  canvas.save();
-  canvas.concat(matrix);
   path.addPoly(points, closeStroke);
+  path.transform(matrix);
   drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
     canvas.drawPath(path, paint);
   });
-  canvas.restore();
-  path.delete();
+  return path;
 };
 
 const drawCircle = (options: IDrawFunctionOptions, shape: PIXI.Circle) => {
+  const ck = getCanvasKitInstance();
+
   const { x, y, radius } = shape;
   const { canvas, matrix, fillStyle, lineStyle } = options;
-  canvas.save();
-  canvas.concat(matrix);
+  const path = new ck.Path();
+  path.addCircle(x, y, radius);
+  path.transform(matrix);
   drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
-    canvas.drawCircle(x, y, radius, paint);
+    canvas.drawPath(path, paint);
   });
-  canvas.restore();
+  return path;
 };
 
 const drawEllipse = (options: IDrawFunctionOptions, shape: PIXI.Ellipse) => {
@@ -153,12 +158,14 @@ const drawEllipse = (options: IDrawFunctionOptions, shape: PIXI.Ellipse) => {
   const { canvas, matrix, fillStyle, lineStyle } = options;
   const { x, y, width, height } = shape;
   const rect = ck.XYWHRect(x - width, y - height, width * 2, height * 2); //КОСТЫЛЬ - так рисуются правильные координаты для овала / эллипса вместо x, y, width, height
-  canvas.save();
-  canvas.concat(matrix);
+
+  const path = new ck.Path();
+  path.addOval(rect);
+  path.transform(matrix);
   drawWithFillAndStroke(fillStyle, lineStyle, (paint) => {
-    canvas.drawOval(rect, paint);
+    canvas.drawPath(path, paint);
   });
-  canvas.restore();
+  return path;
 };
 
 const drawImage = (options: IDrawFunctionOptions, sprite: PIXI.Sprite) => {
@@ -175,6 +182,14 @@ const drawImage = (options: IDrawFunctionOptions, sprite: PIXI.Sprite) => {
     canvas.concat(matrix);
     canvas.drawImage(image, 0, 0);
     canvas.restore();
+
+    const path = new ck.Path();
+    const rect = ck.XYWHRect(0, 0, image.width(), image.height());
+    path.addRect(rect);
+    path.transform(matrix);
+    return path;
+  } else {
+    throw new Error("No image source")
   }
 };
 

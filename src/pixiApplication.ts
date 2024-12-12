@@ -6,7 +6,7 @@ let app: PIXI.Application;
 let currentPixiContainer: PIXI.Container | null = null;
 let containerIndex = 0;
 
-const defaultContainer = containers[0]; //new PIXI.Container();
+const defaultContainer = containers[0];
 
 const getCurrentPixiContainer = () => currentPixiContainer;
 const pixiAppInitialized = () => initialized;

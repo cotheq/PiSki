@@ -6,15 +6,15 @@ containers.push(
   (() => {
     const mainContainer = new PIXI.Container();
     const subContainer = new PIXI.Container();
-    const g1 = new PIXI.Graphics() as PIXI.utils.EventEmitter;
-    const g2 = new PIXI.Graphics() as PIXI.utils.EventEmitter;
-    const g3 = new PIXI.Graphics() as PIXI.utils.EventEmitter;
-    const g4 = new PIXI.Graphics() as PIXI.utils.EventEmitter;
+    const g1 = new PIXI.Graphics();
+    const g2 = new PIXI.Graphics();
+    const g3 = new PIXI.Graphics();
+    const g4 = new PIXI.Graphics();
     const g5 = new PIXI.Graphics();
     const g6 = new PIXI.Graphics();
 
-    g1.eventMode = "static";
-    g2.eventMode = "static";
+    (g2 as PIXI.utils.EventEmitter).eventMode = "static";
+    (g2 as PIXI.utils.EventEmitter).eventMode = "static";
 
     g1.beginFill("#ff0000").drawEllipse(0, 0, 100, 60).endFill();
     g1.position.set(100, 60);
@@ -23,10 +23,10 @@ containers.push(
     g2.position.set(120, 60);
     g2.angle = 30;
     g2.scale.set(2, 1);
-    g1.on("pointerdown", () => {
+    (g1 as PIXI.utils.EventEmitter).on("pointerdown", () => {
       console.log("g1 pointerdown!");
     });
-    g2.on("pointerup", () => {
+    (g2 as PIXI.utils.EventEmitter).on("pointerup", () => {
       console.log("g2 pointerup!");
     });
     g3.lineStyle({
@@ -59,25 +59,29 @@ containers.push(
     const cat = new PIXI.Sprite(texture);
     cat.width = 100;
     cat.height = 100;
+    (cat as PIXI.utils.EventEmitter).eventMode = "static";
+    (cat as PIXI.utils.EventEmitter).on("pointerdown", () => {
+      console.log("мяу");
+    });
 
     cat.position.set(300, 200);
     mainContainer.addChild(cat);
 
     return mainContainer;
-  })()
+  })(),
 );
 
 containers.push(
   (() => {
     const mainContainer = new PIXI.Container();
     const subContainer = new PIXI.Container();
-    const g1 = new PIXI.Graphics() as PIXI.utils.EventEmitter;
-    const g2 = new PIXI.Graphics() as PIXI.utils.EventEmitter;
+    const g1 = new PIXI.Graphics();
+    const g2 = new PIXI.Graphics();
     const g5 = new PIXI.Graphics();
     const g6 = new PIXI.Graphics();
 
-    g1.eventMode = "static";
-    g2.eventMode = "static";
+    (g1 as PIXI.utils.EventEmitter).eventMode = "static";
+    (g2 as PIXI.utils.EventEmitter).eventMode = "static";
 
     g1.beginFill("#0000aa").drawEllipse(0, 0, 100, 60).endFill();
     g1.position.set(150, 60);
@@ -87,10 +91,10 @@ containers.push(
     g2.position.set(120, 60);
     g2.angle = 60;
     g2.scale.set(2, 1);
-    g1.on("pointerdown", () => {
+    (g1 as PIXI.utils.EventEmitter).on("pointerdown", () => {
       console.log("g1 pointerdown!");
     });
-    g2.on("pointerup", () => {
+    (g2 as PIXI.utils.EventEmitter).on("pointerup", () => {
       console.log("g2 pointerup!");
     });
     g5.beginFill("#c0ffee", 1).drawCircle(200, 200, 70).endFill();
@@ -122,16 +126,13 @@ containers.push(
       points: number,
       outerRadius: number,
       innerRadius: number,
-      rotation = 0
+      rotation = 0,
     ) => {
       const coords = [];
       for (let i = 0; i < points * 2; i++) {
         const angle = (i * Math.PI) / points + rotation;
         const radius = i % 2 === 0 ? outerRadius : innerRadius;
-        coords.push(
-          centerX + radius * Math.cos(angle),
-          centerY + radius * Math.sin(angle)
-        );
+        coords.push(centerX + radius * Math.cos(angle), centerY + radius * Math.sin(angle));
       }
       return coords;
     };
@@ -143,11 +144,18 @@ containers.push(
     star.beginFill(0xffcc00);
     star.drawShape(starShape);
     star.endFill();
+    (star as PIXI.utils.EventEmitter).eventMode = "static";
+    (star as PIXI.utils.EventEmitter).on("pointerdown", () => {
+      console.log("БУМ");
+    });
+    (star as PIXI.utils.EventEmitter).on("pointerup", () => {
+      console.log("бах");
+    });
 
     mainContainer.addChild(star);
 
     return mainContainer;
-  })()
+  })(),
 );
 
 export { containers };
