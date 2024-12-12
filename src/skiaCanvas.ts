@@ -163,7 +163,6 @@ const addEventToCanvas = (
 const removeAllEventListeners = () => {
   for (const eventType in eventListeners) {
     for (const eventListener of eventListeners[eventType]) {
-      console.log(eventType, eventListener);
       canvasElement.removeEventListener(eventType, eventListener);
     }
   }
@@ -235,7 +234,6 @@ const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
               break;
             }
             default:
-              console.log("WTF&!");
               break;
           }
         }
