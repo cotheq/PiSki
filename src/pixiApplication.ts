@@ -15,7 +15,7 @@ const initPixiApplication = (
   view: HTMLCanvasElement,
   width: number,
   height: number,
-  backgroundColor?: PIXI.ColorSource
+  backgroundColor?: PIXI.ColorSource,
 ) => {
   if (!initialized) {
     app = new PIXI.Application({
@@ -40,10 +40,4 @@ const changeContainer = () => {
   setCurrentPixiContainer(containers[++containerIndex % containers.length]);
 };
 
-export {
-  initPixiApplication,
-  getCurrentPixiContainer,
-  setCurrentPixiContainer,
-  pixiAppInitialized,
-  changeContainer,
-};
+export { initPixiApplication, getCurrentPixiContainer, setCurrentPixiContainer, pixiAppInitialized, changeContainer };

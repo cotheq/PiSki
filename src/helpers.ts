@@ -3,7 +3,7 @@ import { DrawCallback } from "./types";
 
 const hexToRgba = (hex: number, a: number = 1) => {
   const r = (hex >> 16) & 0xff;
-  const g = (hex >> 8) & 0xff; 
+  const g = (hex >> 8) & 0xff;
   const b = hex & 0xff;
   return { r, g, b, a };
 };
@@ -17,7 +17,7 @@ const hexToRgba = (hex: number, a: number = 1) => {
 const downloadUint8ArrayAsFile = (
   data: Uint8Array,
   fileName: string,
-  mimeType: string = "application/octet-stream"
+  mimeType: string = "application/octet-stream",
 ) => {
   // Создаем Blob из Uint8Array
   const blob = new Blob([data], { type: mimeType });
@@ -40,13 +40,13 @@ const canvasToPDF = (
   canvasWidth: number,
   canvasHeight: number,
   drawCallback: DrawCallback,
-  fileName = "canvas.pdf"
+  fileName = "canvas.pdf",
 ) => {
   const ck = getCanvasKitInstance();
   downloadUint8ArrayAsFile(
     //@ts-ignore
     ck.canvasToPDF(canvasWidth, canvasHeight, drawCallback),
-    fileName
+    fileName,
   );
 };
 

@@ -35,7 +35,7 @@ function convertLineJoin(pixiJoin: PIXI.LINE_JOIN) {
 const drawWithFillAndStroke = (
   fillStyle: PIXI.FillStyle,
   lineStyle: PIXI.LineStyle,
-  callback: (paint: Paint) => void
+  callback: (paint: Paint) => void,
 ) => {
   const fillStylePaint = createPaint(fillStyle);
   const lineStylePaint = createPaint(lineStyle);
@@ -98,19 +98,12 @@ const drawRect = (options: IDrawFunctionOptions, shape: PIXI.Rectangle) => {
   return path;
 };
 
-const drawRoundedRect = (
-  options: IDrawFunctionOptions,
-  shape: PIXI.RoundedRectangle
-) => {
+const drawRoundedRect = (options: IDrawFunctionOptions, shape: PIXI.RoundedRectangle) => {
   const ck = getCanvasKitInstance();
 
   const { canvas, matrix, fillStyle, lineStyle } = options;
   const { x, y, width, height, radius } = shape;
-  const roundedRect = ck.RRectXY(
-    ck.XYWHRect(x, y, width, height),
-    radius,
-    radius
-  );
+  const roundedRect = ck.RRectXY(ck.XYWHRect(x, y, width, height), radius, radius);
 
   const path = new ck.Path();
   path.addRRect(roundedRect);
@@ -189,15 +182,8 @@ const drawImage = (options: IDrawFunctionOptions, sprite: PIXI.Sprite) => {
     path.transform(matrix);
     return path;
   } else {
-    throw new Error("No image source")
+    throw new Error("No image source");
   }
 };
 
-export {
-  drawPolygon,
-  drawRect,
-  drawCircle,
-  drawEllipse,
-  drawImage,
-  drawRoundedRect,
-};
+export { drawPolygon, drawRect, drawCircle, drawEllipse, drawImage, drawRoundedRect };
