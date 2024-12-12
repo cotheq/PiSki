@@ -1,3 +1,7 @@
+/**
+ * Файл - точка входа. Здесь рисуется HTML и происходит инициализация всего
+ */
+
 import { changeContainer, initPixiApplication } from "./pixiApplication";
 import { initSkiaCanvas, drawCallback, updateDrawCallback } from "./skiaCanvas";
 import "./style.css";

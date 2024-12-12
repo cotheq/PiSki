@@ -1,3 +1,8 @@
+/**
+ * В этом файле задаётся инстанс CanvasKit для всего проекта
+ * (что-то вроде singleton)
+ */
+
 import { CanvasKit } from "canvaskit-wasm";
 let ck: CanvasKit | null = null;
 

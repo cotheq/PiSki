@@ -1,3 +1,8 @@
+/**
+ * В этом файле инициализируется CanvasKit.
+ * Здесь же происходит перенос содержимого из PIXI контейнера.
+ */
+
 import InitCanvasKit, { Canvas, CanvasKit, Path, Surface } from "canvaskit-wasm";
 import * as PIXI from "pixi.js-legacy";
 import { hexToRgba } from "./helpers";
@@ -10,11 +15,16 @@ import { DrawCallback, IDrawFunctionOptions } from "./types";
 let ck: CanvasKit;
 let surface: Surface | null;
 let drawCallback: DrawCallback;
-
 let canvasElement: HTMLCanvasElement;
 
+//Пока 2 типа событий поддерживаются - захардкодил
 const eventTypes = ["pointerdown", "pointerup"];
 
+/**
+ * Функция инициализирует CanvasKit, CanvasKit.Surface,
+ * а также задаёт функцию рисования на канвасе (DrawCallback)
+ * @param skCanvasId ID DOM-элемента
+ */
 const initSkiaCanvas = (skCanvasId: string) => {
   if (ck == null) {
     InitCanvasKit({
@@ -39,6 +49,10 @@ const initSkiaCanvas = (skCanvasId: string) => {
   }
 };
 
+/**
+ * Функция инициализирует CanvasKit.Surface
+ * @param skCanvasId ID DOM-элемента
+ */
 const initSurface = (skCanvasId: string) => {
   if (surface) {
     surface.delete();
@@ -52,6 +66,10 @@ const initSurface = (skCanvasId: string) => {
   }
 };
 
+/**
+ * Функция определяет текущий отображаемый PIXI.Container
+ * и обновляет функцию drawCallback для рисования на канвасе.
+ */
 const updateDrawCallback = () => {
   if (surface == null) {
     throw new Error("No canvas surface");
@@ -64,6 +82,12 @@ const updateDrawCallback = () => {
   }
 };
 
+/**
+ * Функция делает обход по дочерним элементам PIXI.Container
+ * и формирует линейный массив дочерних объектов PIXI.Container
+ * @param pixiContainer PIXI.Container
+ * @returns Линейный массив дочерних объектов PIXI.Container для отрисовки
+ */
 const getObjectsToDrawArray = (pixiContainer: PIXI.Container) => {
   const result: PIXI.Container[] = [];
   const traverseChildren = (container: PIXI.Container) => {
@@ -83,6 +107,13 @@ const getObjectsToDrawArray = (pixiContainer: PIXI.Container) => {
   return result;
 };
 
+/**
+ * Функция добавляет события из на DOM-элемент канваса.
+ * Длина массивов objectsToDraw и paths должна быть одинаковая,
+ * так как там хранится информация об одинаковых объектах.
+ * @param objectsToDraw Массив объектов (PIXI.Container) для отрисовки на канвасе Skia
+ * @param paths Массив CanvasKit.Path[][], полученный после отрисовки на канвасе Skia
+ */
 const addEventsFromPaths = (objectsToDraw: PIXI.Container[], paths: Array<Array<Path>>) => {
   if (objectsToDraw.length != paths.length) {
     throw new Error("Lengths of objectsToDraw and paths are not equal");
@@ -103,6 +134,9 @@ const addEventsFromPaths = (objectsToDraw: PIXI.Container[], paths: Array<Array<
   }
 };
 
+/**
+ * Функция непосредственно добавляет событие на DOM-элемент канваса и вызывает коллбэк
+ */
 const addEventToCanvas = (
   canvas: HTMLCanvasElement,
   path: Path,
@@ -116,9 +150,22 @@ const addEventToCanvas = (
   });
 };
 
+/**
+ * Функция непосредственно устанавливает функцию для рисования на канвасе Skia
+ * и содержит её реализацию.
+ * @param surface
+ * @param pixiContainer 
+ */
 const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
   surface.flush();
 
+  /**
+   * Функция для рисования на канвасе Skia.
+   * Здесь рисуется всё содержимое канваса и добавляются события на DOM-элемент (по необходимости).
+   * Работоспособность с анимированным содержимым (особенно событий) не гарантируется
+   * @param canvas Skia Canvas
+   * @param addEvents Нужно ли добавлять события на DOM-элемент (=true) или просто нарисовать содержимое (=false)
+   */
   drawCallback = (canvas: Canvas, addEvents = false) => {
     let eventPaths: Array<Array<Path>> = [];
     const { r, g, b } = hexToRgba(canvasSettings.backgroundColor);
@@ -197,7 +244,7 @@ const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
   };
 
   surface.requestAnimationFrame((canvas) => {
-    drawCallback(canvas, true);
+    drawCallback(canvas, true); //Первый вызов, нужно добавить события
   });
 };
 

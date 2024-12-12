@@ -1,3 +1,9 @@
+/**
+ * В этом файле происходит инициализация PIXI.Application.
+ * Задаётся контейнер по умолчанию из заранее подготовленного списка (в файле ./pixiContainers.ts)
+ * Также здесь содержатся функции для смены контейнера.
+ */
+
 import * as PIXI from "pixi.js-legacy";
 import { containers } from "./pixiContainers";
 

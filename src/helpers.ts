@@ -1,3 +1,7 @@
+/**
+ * В этом файле содержатся вспомогательные функции (хелперы) для проекта
+ */
+
 import { getCanvasKitInstance } from "./CanvasKitInstance";
 import { DrawCallback } from "./types";
 
@@ -12,30 +16,31 @@ const hexToRgba = (hex: number, a: number = 1) => {
  * Преобразует Uint8Array в файл и инициирует скачивание.
  * @param data - Данные в формате Uint8Array.
  * @param fileName - Имя файла для скачивания.
- * @param mimeType - MIME-тип файла (по умолчанию application/octet-stream).
+ * @param mimeType - MIME-тип файла
  */
 const downloadUint8ArrayAsFile = (
   data: Uint8Array,
   fileName: string,
   mimeType: string = "application/octet-stream",
 ) => {
-  // Создаем Blob из Uint8Array
   const blob = new Blob([data], { type: mimeType });
-
-  // Создаем временную ссылку для скачивания
   const link = document.createElement("a");
   link.href = URL.createObjectURL(blob);
   link.download = fileName;
-
-  // Добавляем ссылку в документ, кликаем по ней и удаляем
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
-
-  // Очищаем временный URL
   URL.revokeObjectURL(link.href);
 };
 
+/**
+ * Функция вызывает метод canvasToPDF, реализованный в WASM-сборке Skia,
+ * и отправляет полученный файл на скачивание
+ * @param canvasWidth Ширина канваса
+ * @param canvasHeight Высота канваса
+ * @param drawCallback Функция для рисования на канвасе
+ * @param fileName Имя файла
+ */
 const canvasToPDF = (
   canvasWidth: number,
   canvasHeight: number,

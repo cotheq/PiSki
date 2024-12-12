@@ -1,9 +1,20 @@
-import { hexToRgba } from "./helpers";
+/**
+ * В этом файле содержатся функции для рисования фигур и картинок с помощью Skia.
+ * Также содержатся некоторые вспомогательные функции для функций рисования.
+ * 
+ * Каждая функция, которая что-то рисует, возвращает Canvas.Path, необходимый для
+ * последующего добавления события на DOM-элемент канваса и проверки по методу Path.contains
+ */
+
 import * as PIXI from "pixi.js";
+import { Paint } from "canvaskit-wasm";
+import { hexToRgba } from "./helpers";
 import { getCanvasKitInstance } from "./CanvasKitInstance";
 import { IDrawFunctionOptions } from "./types";
-import { Paint } from "canvaskit-wasm";
 
+/**
+ * Функция устанавливает вид конца рисуемой линии (переносит из PIXI)
+ */
 const convertLineCap = (pixiCap: PIXI.LINE_CAP) => {
   const ck = getCanvasKitInstance();
   switch (pixiCap) {
@@ -18,6 +29,9 @@ const convertLineCap = (pixiCap: PIXI.LINE_CAP) => {
   }
 };
 
+/**
+ * Функция устанавливает вид соединения рисуемой линии (переносит из PIXI)
+ */
 function convertLineJoin(pixiJoin: PIXI.LINE_JOIN) {
   const ck = getCanvasKitInstance();
   switch (pixiJoin) {
@@ -32,6 +46,12 @@ function convertLineJoin(pixiJoin: PIXI.LINE_JOIN) {
   }
 }
 
+/**
+ * Функция создаёт 2 объекта CanvasKit.Paint: один для заливки, другой для обводки
+ * @param fillStyle Стиль заливки
+ * @param lineStyle Стиль обводки
+ * @param callback Коллбэк, как правило что-то рисует
+ */
 const drawWithFillAndStroke = (
   fillStyle: PIXI.FillStyle,
   lineStyle: PIXI.LineStyle,
@@ -45,6 +65,12 @@ const drawWithFillAndStroke = (
   lineStylePaint.delete();
 };
 
+/**
+ * Функция создаёт CanvasKit.Paint.
+ * Используется для одного из двух, в зависимости от принимаемого стиля: заливка или обводка
+ * @param style стиль заливки (обводки)
+ * @returns Объект CanvasKit.Paint
+ */
 const createPaint = (style: PIXI.FillStyle | PIXI.LineStyle) => {
   const ck = getCanvasKitInstance();
 
@@ -82,6 +108,9 @@ const createPaint = (style: PIXI.FillStyle | PIXI.LineStyle) => {
   return paint;
 };
 
+/**
+ * Функция рисует прямоугольник
+ */
 const drawRect = (options: IDrawFunctionOptions, shape: PIXI.Rectangle) => {
   const ck = getCanvasKitInstance();
 
@@ -98,6 +127,9 @@ const drawRect = (options: IDrawFunctionOptions, shape: PIXI.Rectangle) => {
   return path;
 };
 
+/**
+ * Функция рисует скругленный прямоугольник
+ */
 const drawRoundedRect = (options: IDrawFunctionOptions, shape: PIXI.RoundedRectangle) => {
   const ck = getCanvasKitInstance();
 
@@ -114,6 +146,9 @@ const drawRoundedRect = (options: IDrawFunctionOptions, shape: PIXI.RoundedRecta
   return path;
 };
 
+/**
+ * Функция рисует многоугольник или линию по точкам
+ */
 const drawPolygon = (options: IDrawFunctionOptions, shape: PIXI.Polygon) => {
   const ck = getCanvasKitInstance();
 
@@ -131,6 +166,9 @@ const drawPolygon = (options: IDrawFunctionOptions, shape: PIXI.Polygon) => {
   return path;
 };
 
+/**
+ * Функция рисует круг
+ */
 const drawCircle = (options: IDrawFunctionOptions, shape: PIXI.Circle) => {
   const ck = getCanvasKitInstance();
 
@@ -145,6 +183,10 @@ const drawCircle = (options: IDrawFunctionOptions, shape: PIXI.Circle) => {
   return path;
 };
 
+/**
+ * Функция рисует эллипс (овал).
+ * Эллипс в PIXI и овал в Skia могут слегка отличаться
+ */
 const drawEllipse = (options: IDrawFunctionOptions, shape: PIXI.Ellipse) => {
   const ck = getCanvasKitInstance();
 
@@ -161,6 +203,9 @@ const drawEllipse = (options: IDrawFunctionOptions, shape: PIXI.Ellipse) => {
   return path;
 };
 
+/**
+ * Функция рисует картинку из спрайта PIXI.Sprite
+ */
 const drawImage = (options: IDrawFunctionOptions, sprite: PIXI.Sprite) => {
   const { canvas, matrix } = options;
   const pixiImageResource = sprite.texture.baseTexture.resource;

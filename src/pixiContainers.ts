@@ -1,3 +1,7 @@
+/**
+ * В этом файле содержатся заранее подготовленные PIXI контейнеры.
+ */
+
 import * as PIXI from "pixi.js-legacy";
 
 const containers: PIXI.Container[] = [];
