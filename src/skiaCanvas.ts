@@ -20,6 +20,8 @@ let canvasElement: HTMLCanvasElement;
 //Пока 2 типа событий поддерживаются - захардкодил
 const eventTypes = ["pointerdown", "pointerup"];
 
+let eventListeners: { [key: string]: EventListener[] } = {};
+
 /**
  * Функция инициализирует CanvasKit, CanvasKit.Surface,
  * а также задаёт функцию рисования на канвасе (DrawCallback)
@@ -143,21 +145,40 @@ const addEventToCanvas = (
   eventType: string,
   callback: (...args: any[]) => void,
 ) => {
-  canvas.addEventListener(eventType, (e: Event) => {
+  const eventListener: EventListener = (e: Event) => {
     if (path.contains((e as PointerEvent).offsetX, (e as PointerEvent).offsetY)) {
       callback();
     }
-  });
+  };
+  canvas.addEventListener(eventType, eventListener);
+  if (!eventListeners[eventType]) {
+    eventListeners[eventType] = [];
+  }
+  eventListeners[eventType].push(eventListener);
+};
+
+/**
+ * Функция удаляет все события из DOM-элемента Canvas
+ */
+const removeAllEventListeners = () => {
+  for (const eventType in eventListeners) {
+    for (const eventListener of eventListeners[eventType]) {
+      console.log(eventType, eventListener);
+      canvasElement.removeEventListener(eventType, eventListener);
+    }
+  }
+  eventListeners = {};
 };
 
 /**
  * Функция непосредственно устанавливает функцию для рисования на канвасе Skia
  * и содержит её реализацию.
  * @param surface
- * @param pixiContainer 
+ * @param pixiContainer
  */
 const setDrawCallback = (surface: Surface, pixiContainer: PIXI.Container) => {
   surface.flush();
+  removeAllEventListeners();
 
   /**
    * Функция для рисования на канвасе Skia.

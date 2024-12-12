@@ -28,10 +28,10 @@ containers.push(
     g2.angle = 30;
     g2.scale.set(2, 1);
     (g1 as PIXI.utils.EventEmitter).on("pointerdown", () => {
-      console.log("g1 pointerdown!");
+      console.log("Container 1: g1 pointerdown!");
     });
     (g2 as PIXI.utils.EventEmitter).on("pointerup", () => {
-      console.log("g2 pointerup!");
+      console.log("Container 1: g2 pointerup!");
     });
     g3.lineStyle({
       width: 10,
@@ -65,7 +65,7 @@ containers.push(
     cat.height = 100;
     (cat as PIXI.utils.EventEmitter).eventMode = "static";
     (cat as PIXI.utils.EventEmitter).on("pointerdown", () => {
-      console.log("мяу");
+      console.log("Container 1: мяу");
     });
 
     cat.position.set(300, 200);
@@ -96,10 +96,10 @@ containers.push(
     g2.angle = 60;
     g2.scale.set(2, 1);
     (g1 as PIXI.utils.EventEmitter).on("pointerdown", () => {
-      console.log("g1 pointerdown!");
+      console.log("Container 2: g1 pointerdown!");
     });
     (g2 as PIXI.utils.EventEmitter).on("pointerup", () => {
-      console.log("g2 pointerup!");
+      console.log("Container 2: g2 pointerup!");
     });
     g5.beginFill("#c0ffee", 1).drawCircle(200, 200, 70).endFill();
     g5.position.set(0, 0);
@@ -150,10 +150,10 @@ containers.push(
     star.endFill();
     (star as PIXI.utils.EventEmitter).eventMode = "static";
     (star as PIXI.utils.EventEmitter).on("pointerdown", () => {
-      console.log("БУМ");
+      console.log("Container 2: БУМ");
     });
     (star as PIXI.utils.EventEmitter).on("pointerup", () => {
-      console.log("бах");
+      console.log("Container 2: бах");
     });
 
     mainContainer.addChild(star);
